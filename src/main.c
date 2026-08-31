@@ -2,24 +2,33 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_COMMAND_LENGTH 100
+
 int main(int argc, char *argv[]) {
   // Flush after every printf
   setbuf(stdout, NULL);
-
-  // TODO: Uncomment the code below to pass the first stage
-  while(1) {
+  char command[MAX_COMMAND_LENGTH];
+  while (1) {
     printf("$ ");
-    char command[1024];
     fgets(command, sizeof(command), stdin);
     command[strcspn(command, "\n")] = '\0';
-    if (strcmp(command, "exit") == 0) {
-      break;
-    }
-    if (strncmp(command, "echo ", 5) == 0) {
-      printf("%s\n", command + 5);
+    char *builtin = strtok(command, " ");
+    char *arg = strtok(NULL, "");
+    if (builtin == NULL) {
       continue;
     }
-    printf("%s: command not found\n", command);
+    if (strcmp(builtin, "exit") == 0) {
+      break;
+    } else if (strcmp(builtin, "echo") == 0) {
+      printf("%s\n", arg);
+    } else if (strcmp(builtin, "type") == 0) {
+      if (!strcmp(arg, "exit") || !strcmp(arg, "echo") || !strcmp(arg, "type"))
+        printf("%s is a shell builtin\n", arg);
+      else
+        printf("%s: not found\n", arg);
+    } else {
+      printf("%s: command not found\n", builtin);
+    }
   }
   return 0;
 }
